@@ -7,3 +7,10 @@
 - Create a new django project
 
 ### Commit - `Setup project`
+
+## Development Steps
+
+- Create users app
+- Deploy app on render
+
+### Commit - `Deploy project`

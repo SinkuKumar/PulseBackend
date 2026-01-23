@@ -15,8 +15,39 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include, reverse
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+
+@api_view(['GET'])
+def api_home(request):
+    """
+    Welcome to Pulse API
+    """
+    return Response({
+        "message": "API Root",
+        "available_apis": {
+            "Users": request.build_absolute_uri(
+                reverse("user-list")
+            ),
+            "Groups": request.build_absolute_uri(
+                reverse("group-list")
+            ),
+            "Auth Login": request.build_absolute_uri(
+                reverse("rest_framework:login")
+            ),
+            "Auth Logout": request.build_absolute_uri(
+                reverse("rest_framework:logout")
+            ),
+        }
+    })
+
 
 urlpatterns = [
+    path('', api_home, name='api-home'),
     path('admin/', admin.site.urls),
+    path('api/v1/users/', include('users.urls')),
+    path('api/v1/auth/', include('rest_framework.urls')),
 ]

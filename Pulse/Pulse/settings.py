@@ -9,8 +9,21 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+ENV_SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+ENV_DEBUG = os.getenv("DJANGO_DEBUG")
+ENV_ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS")
+
+ENV_DB_NAME = os.getenv("DB_NAME")
+ENV_DB_USER = os.getenv("DB_USER")
+ENV_DB_PASSWORD = os.getenv("DB_PASSWORD")
+ENV_DB_HOST = os.getenv("DB_HOST")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +33,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*xt03&7lrt$h&_ing1bc51aqx_%(mhd(0@@!!%8dm*))qb-4w!'
+SECRET_KEY = ENV_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = ENV_DEBUG
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ENV_ALLOWED_HOSTS.split(",")
 
 
 # Application definition
@@ -38,6 +51,19 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+THIRD_PARTY_APPS = [
+    'rest_framework',
+]
+
+INSTALLED_APPS += THIRD_PARTY_APPS
+
+LOCAL_APPS = [
+    'users',
+]
+
+INSTALLED_APPS += LOCAL_APPS
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,10 +98,22 @@ WSGI_APPLICATION = 'Pulse.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# SQLite DB default
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': ENV_DB_NAME,
+        'USER': ENV_DB_USER,
+        'PASSWORD': ENV_DB_PASSWORD,
+        'HOST': ENV_DB_HOST,
+        'PORT': '5432',
     }
 }
 
@@ -120,3 +158,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Rest framework settings
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
