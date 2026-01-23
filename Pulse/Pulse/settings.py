@@ -40,6 +40,7 @@ DEBUG = ENV_DEBUG
 
 ALLOWED_HOSTS = ENV_ALLOWED_HOSTS.split(",")
 
+CSRF_TRUSTED_ORIGINS = ENV_ALLOWED_HOSTS.split(",")
 
 # Application definition
 
