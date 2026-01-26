@@ -20,3 +20,8 @@
 - Add load employees command
 
 ### Commit - `Create organization app`
+
+- Create projects app
+- Add seed_projects command
+
+### Commit - `Create projects app`

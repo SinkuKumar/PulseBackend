@@ -32,6 +32,7 @@ class PulseView(APIView):
         return Response({
             "Users": request.build_absolute_uri(reverse("user-root")),
             "Organization": request.build_absolute_uri(reverse("organization-root")),
+            "Projects": request.build_absolute_uri(reverse("projects-root")),
         })
 
 
@@ -40,4 +41,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/users/", include(("users.urls"))),
     path("api/v1/organization/", include(("organization.urls"))),
+    path("api/v1/projects/", include(("projects.urls"))),
 ]
