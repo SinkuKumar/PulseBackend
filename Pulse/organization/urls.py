@@ -5,27 +5,25 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
-from .views import UserViewSet, GroupViewSet
+from .views import EmployeeViewSet
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet, basename="user")
-router.register(r'groups', GroupViewSet, basename="group")
+router.register(r'employees', EmployeeViewSet)
 
 
-class UserView(APIView):
+class OrganizationView(APIView):
     """
-    User API root
+    Organization API root
     """
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
         return Response({
-            "users": reverse("user-list", request=request),
-            "groups": reverse("group-list", request=request),
+            "employees": request.build_absolute_uri(reverse("employee-list")),
         })
 
 
 urlpatterns = [
-    path('', UserView.as_view(), name="user-root"),
+    path('', OrganizationView.as_view(), name="organization-root"),
     path('', include(router.urls))
 ]

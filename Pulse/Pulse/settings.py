@@ -62,6 +62,7 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 
 LOCAL_APPS = [
     'users',
+    'organization'
 ]
 
 INSTALLED_APPS += LOCAL_APPS

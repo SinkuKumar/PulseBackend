@@ -14,3 +14,9 @@
 - Deploy app on render
 
 ### Commit - `Deploy project`
+
+- Create organization app
+- Add test cases
+- Add load employees command
+
+### Commit - `Create organization app`
