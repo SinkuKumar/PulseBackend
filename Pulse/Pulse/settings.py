@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'django_filters',
+    'simple_history',
 ]
 
 INSTALLED_APPS += THIRD_PARTY_APPS
@@ -78,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'Pulse.urls'
@@ -104,23 +106,23 @@ WSGI_APPLICATION = 'Pulse.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # SQLite DB default
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': ENV_DB_NAME,
-        'USER': ENV_DB_USER,
-        'PASSWORD': ENV_DB_PASSWORD,
-        'HOST': ENV_DB_HOST,
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': ENV_DB_NAME,
+#         'USER': ENV_DB_USER,
+#         'PASSWORD': ENV_DB_PASSWORD,
+#         'HOST': ENV_DB_HOST,
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation

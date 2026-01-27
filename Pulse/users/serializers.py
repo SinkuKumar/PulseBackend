@@ -2,17 +2,24 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(
         write_only=True,
         required=False,
+        min_length=8,
         style={'input_type': 'password'}
+    )
+
+    groups = serializers.HyperlinkedRelatedField(
+        many=True,
+        read_only=True,
+        view_name='group-detail'
     )
 
     class Meta:
         model = User
         fields = [
-            'id',
+            'url',
             'username',
             'password',
             'email',
@@ -25,6 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
+
         user = User(**validated_data)
 
         if password:
@@ -38,9 +46,11 @@ class UserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
 
+        # Update non-password fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
+        # Update password safely
         if password:
             instance.set_password(password)
 
@@ -48,7 +58,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
-        fields = ['id', 'name', 'permissions']
+        fields = ['url', 'name']
