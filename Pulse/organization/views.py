@@ -1,6 +1,5 @@
 from rest_framework import filters
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Employee, Designation, Level
@@ -17,7 +16,6 @@ from .serializers import (
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    permission_classes = [IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -39,7 +37,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
 class EmployeeHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = EmployeeHistorySerializer
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Employee.history.filter(id=self.kwargs["employee_pk"]).order_by(
@@ -50,7 +47,6 @@ class EmployeeHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 class DesignationViewSet(viewsets.ModelViewSet):
     queryset = Designation.objects.all()
     serializer_class = DesignationSerializer
-    permission_classes = [IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -65,7 +61,6 @@ class DesignationViewSet(viewsets.ModelViewSet):
 
 class DesignationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DesignationHistorySerializer
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Designation.history.filter(id=self.kwargs["designation_pk"]).order_by(
@@ -76,7 +71,6 @@ class DesignationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 class LevelViewSet(viewsets.ModelViewSet):
     queryset = Level.objects.all()
     serializer_class = LevelSerializer
-    permission_classes = [IsAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -86,7 +80,6 @@ class LevelViewSet(viewsets.ModelViewSet):
 
 class LevelHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LevelHistorySerializer
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Level.history.filter(id=self.kwargs["level_pk"]).order_by(

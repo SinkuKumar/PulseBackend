@@ -1,5 +1,4 @@
 from rest_framework import filters, viewsets
-from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Project
@@ -12,7 +11,6 @@ from .serializers import TaskSerializer
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
 
     filter_backends = [
         DjangoFilterBackend,
@@ -47,7 +45,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated]
 
     filter_backends = [
         DjangoFilterBackend,
