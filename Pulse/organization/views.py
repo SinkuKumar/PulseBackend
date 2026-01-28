@@ -1,6 +1,7 @@
 from rest_framework import filters
 from rest_framework import viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 
 from .models import Employee, Designation, Level
 from .serializers import (
@@ -12,7 +13,7 @@ from .serializers import (
     LevelHistorySerializer,
 )
 
-
+@extend_schema(tags=['Employee'])
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -35,6 +36,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     ]
 
 
+@extend_schema(tags=['Employee History'])
 class EmployeeHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = EmployeeHistorySerializer
 
@@ -44,6 +46,7 @@ class EmployeeHistoryViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
 
+@extend_schema(tags=['Organization Designation'])
 class DesignationViewSet(viewsets.ModelViewSet):
     queryset = Designation.objects.all()
     serializer_class = DesignationSerializer
@@ -59,6 +62,7 @@ class DesignationViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
 
+@extend_schema(tags=['Organization Designation History'])
 class DesignationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DesignationHistorySerializer
 
@@ -68,6 +72,7 @@ class DesignationHistoryViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
 
+@extend_schema(tags=['Organization Level'])
 class LevelViewSet(viewsets.ModelViewSet):
     queryset = Level.objects.all()
     serializer_class = LevelSerializer
@@ -78,6 +83,7 @@ class LevelViewSet(viewsets.ModelViewSet):
     ]
 
 
+@extend_schema(tags=['Organization Level History'])
 class LevelHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LevelHistorySerializer
 

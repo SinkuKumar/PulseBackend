@@ -11,10 +11,10 @@ class Designation(models.Model):
     created_on = models.DateTimeField("Created on", auto_now_add=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
-        related_name="designations_created",
+        related_name="designation_created_by",
     )
     history = HistoricalRecords()
 
@@ -28,7 +28,7 @@ class Level(models.Model):
     created_on = models.DateTimeField("Created on", auto_now_add=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name="levels_created",

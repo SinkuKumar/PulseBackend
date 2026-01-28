@@ -1,8 +1,6 @@
 from django.db import transaction
 from django.contrib.auth.models import User
 from rest_framework import serializers
-
-from users.serializers import UserSerializer
 from .models import Employee, Designation, Level
 
 
@@ -11,6 +9,10 @@ class DesignationSerializer(serializers.ModelSerializer):
         view_name="designation-history-list",
         lookup_field="pk",
         lookup_url_kwarg="designation_pk",
+    )
+
+    created_by = serializers.HyperlinkedRelatedField(
+        view_name="employee-detail", read_only=True
     )
 
     class Meta:
@@ -24,7 +26,6 @@ class DesignationSerializer(serializers.ModelSerializer):
             "created_by",
             "history",
         ]
-        read_only_fields = ("created_by",)
 
     def create(self, validated_data):
         validated_data["created_by"] = self.context["request"].user
@@ -55,6 +56,10 @@ class LevelSerializer(serializers.ModelSerializer):
         view_name="level-history-list",
         lookup_field="pk",
         lookup_url_kwarg="level_pk",
+    )
+    
+    created_by = serializers.HyperlinkedRelatedField(
+        view_name="employee-detail", read_only=True
     )
 
     class Meta:
@@ -99,11 +104,40 @@ class EmployeeSerializer(serializers.ModelSerializer):
         lookup_url_kwarg="employee_pk",
     )
 
-    user = UserSerializer()
+    # READ (representation)
+    user = serializers.HyperlinkedRelatedField(
+        view_name="user-detail",
+        read_only=True,
+    )
+
+    designation = serializers.HyperlinkedRelatedField(
+        view_name="designation-detail",
+        read_only=True,
+    )
+
+    level = serializers.HyperlinkedRelatedField(
+        view_name="level-detail",
+        read_only=True,
+    )
+
+    supervisor = serializers.HyperlinkedRelatedField(
+        view_name="employee-detail",
+        read_only=True,
+    )
+
+    # WRITE (input only)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source="user",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
 
     designation_id = serializers.PrimaryKeyRelatedField(
         queryset=Designation.objects.all(),
         source="designation",
+        write_only=True,
         required=False,
         allow_null=True,
     )
@@ -111,6 +145,15 @@ class EmployeeSerializer(serializers.ModelSerializer):
     level_id = serializers.PrimaryKeyRelatedField(
         queryset=Level.objects.all(),
         source="level",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+
+    supervisor_id = serializers.PrimaryKeyRelatedField(
+        queryset=Employee.objects.all(),
+        source="employee",
+        write_only=True,
         required=False,
         allow_null=True,
     )
@@ -119,31 +162,17 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = Employee
         fields = (
             "url",
+            "employee_id",
             "user",
+            "user_id",
+            "designation",
             "designation_id",
+            "level",
             "level_id",
             "supervisor",
+            "supervisor_id",
             "history",
         )
-
-    def get_fields(self):
-        fields = super().get_fields()
-        if self.instance is not None:  # update case
-            fields["user"].read_only = True
-        return fields
-
-    @transaction.atomic
-    def create(self, validated_data):
-        user_data = validated_data.pop("user")
-        user = User.objects.create_user(**user_data)
-        return Employee.objects.create(user=user, **validated_data)
-
-    def update(self, instance, validated_data):
-        validated_data.pop("user", None)  # ignore user on update
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
 
 
 class EmployeeHistorySerializer(serializers.ModelSerializer):

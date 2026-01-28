@@ -5,13 +5,25 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
-from .views import ProjectViewSet, TaskViewSet
+from drf_spectacular.utils import extend_schema
+
+from .views import ProjectViewSet, ProjectHistoryViewSet, TaskViewSet
 
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet)
 router.register(r'tasks', TaskViewSet)
+router.register(
+    r"projects/(?P<project_pk>\d+)/history",
+    ProjectHistoryViewSet,
+    basename="project-history",
+)
 
-
+@extend_schema(
+    tags=["API Discovery"],
+    summary="Pulse API root",
+    description="Discoverable entry point for Pulse services.",
+    responses=ProjectHistoryViewSet,
+)
 class ProjectView(APIView):
     """
     Project API root

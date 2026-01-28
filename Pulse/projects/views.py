@@ -1,13 +1,12 @@
 from rest_framework import filters, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 
-from .models import Project
-from .serializers import ProjectSerializer
-
-from .models import Task
-from .serializers import TaskSerializer
+from .models import Task, Project
+from .serializers import TaskSerializer, ProjectSerializer, ProjectHistorySerializer
 
 
+@extend_schema(tags=['Project'])
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -42,6 +41,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
     ]
 
 
+@extend_schema(tags=['Project History'])
+class ProjectHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ProjectHistorySerializer
+
+    def get_queryset(self):
+        return Project.history.filter(id=self.kwargs["project_pk"]).order_by(
+            "-history_date"
+        )
+
+
+@extend_schema(tags=['Task'])
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer

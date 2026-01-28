@@ -4,6 +4,9 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework import serializers
+
+from drf_spectacular.utils import extend_schema
 
 from .views import (
     EmployeeViewSet,
@@ -13,6 +16,7 @@ from .views import (
     LevelHistoryViewSet,
     DesignationHistoryViewSet,
 )
+
 
 router = DefaultRouter()
 router.register(r"employees", EmployeeViewSet)
@@ -35,6 +39,21 @@ router.register(
 )
 
 
+class PulseRootSerializer(serializers.Serializer):
+    """
+    Hypermedia links to top-level Pulse services.
+    """
+    Users = serializers.URLField(help_text="Users service root")
+    Organization = serializers.URLField(help_text="Organization service root")
+    Projects = serializers.URLField(help_text="Projects service root")
+
+
+@extend_schema(
+    tags=["API Discovery"],
+    summary="Pulse API root",
+    description="Discoverable entry point for Pulse services.",
+    responses=PulseRootSerializer,
+)
 class OrganizationView(APIView):
     """
     Organization API root

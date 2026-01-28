@@ -1,5 +1,7 @@
 from django.db import models
+from django.conf import settings
 from organization.models import Employee
+from simple_history.models import HistoricalRecords
 
 
 class Project(models.Model):
@@ -11,14 +13,16 @@ class Project(models.Model):
     actual_end = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
-        Employee,
-        related_name="project_created_by",
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
+        related_name="project_created_by",
     )
     members = models.ManyToManyField(
         Employee, related_name="project_members", blank=True
     )
+    history = HistoricalRecords()
 
     def __str__(self) -> str:
         return self.name
@@ -34,10 +38,11 @@ class Task(models.Model):
     actual_end = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
-        Employee,
-        related_name="task_created_by",
+        settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         null=True,
+        blank=True,
+        related_name="task_created_by",
     )
     assigned_by = models.ForeignKey(
         Employee,
@@ -49,23 +54,6 @@ class Task(models.Model):
         Employee, related_name="employee_assigned_to", blank=True
     )
 
-    # Time tracking (in hours)
-    planned_time = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Planned time in hours",
-    )
-
-    actual_time = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Actual time spent in hours",
-    )
-
     STATUS_CHOICES = [
         ("pending", "Pending"),
         ("in_progress", "In Progress"),
@@ -74,13 +62,14 @@ class Task(models.Model):
     ]
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.title} ({self.project.name})"
     
 
-class Comment(models.Model):
-    comment = models.TextField()
-    task = models.ManyToManyField(Task)
-    employee = models.ForeignKey(Employee, related_name="employee_comment", blank=True, on_delete=models.PROTECT)
-    commented_at = models.DateTimeField(auto_now_add=True)
+# class Comment(models.Model):
+#     comment = models.TextField()
+#     task = models.ManyToManyField(Task)
+#     employee = models.ForeignKey(Employee, related_name="employee_comment", blank=True, on_delete=models.PROTECT)
+#     commented_at = models.DateTimeField(auto_now_add=True)

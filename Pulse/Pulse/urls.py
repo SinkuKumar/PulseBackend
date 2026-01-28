@@ -16,17 +16,35 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, reverse
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
+from rest_framework import serializers
+from drf_spectacular.utils import extend_schema
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 
+class PulseRootSerializer(serializers.Serializer):
+    """
+    Hypermedia links to top-level Pulse services.
+    """
+    Users = serializers.URLField(help_text="Users service root")
+    Organization = serializers.URLField(help_text="Organization service root")
+    Projects = serializers.URLField(help_text="Projects service root")
+
+
+@extend_schema(
+    tags=["API Discovery"],
+    summary="Pulse API root",
+    description="Discoverable entry point for Pulse services.",
+    responses=PulseRootSerializer,
+)
 class PulseView(APIView):
     """
-    Welcome to Pulse API
+    Provides discoverable entry points
     """
     permission_classes = [AllowAny]
+    serializer_class = PulseRootSerializer
 
     def get(self, request, *args, **kwargs):
         return Response({
@@ -42,4 +60,9 @@ urlpatterns = [
     path("api/v1/users/", include(("users.urls"))),
     path("api/v1/organization/", include(("organization.urls"))),
     path("api/v1/projects/", include(("projects.urls"))),
+
+    # Docs
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

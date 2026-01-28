@@ -5,16 +5,19 @@ from organization.serializers import EmployeeSerializer
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    created_by = EmployeeSerializer(read_only=True)
-    members = EmployeeSerializer(many=True, read_only=True)
-
-    # Write-only fields for relations
-    created_by_id = serializers.PrimaryKeyRelatedField(
-        source="created_by",
-        queryset=Employee.objects.all(),
-        write_only=True,
-        required=False,
+    history = serializers.HyperlinkedIdentityField(
+        view_name="project-history-list",
+        lookup_field="pk",
+        lookup_url_kwarg="project_pk",
     )
+
+    created_by = serializers.HyperlinkedRelatedField(
+        view_name="employee-detail", read_only=True
+    )
+    members = serializers.HyperlinkedRelatedField(
+        many=True, read_only=True, view_name="employee-detail"
+    )
+
     member_ids = serializers.PrimaryKeyRelatedField(
         source="members",
         many=True,
@@ -26,7 +29,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = [
-            "id",
+            "url",
             "name",
             "description",
             "planned_start",
@@ -35,10 +38,26 @@ class ProjectSerializer(serializers.ModelSerializer):
             "actual_end",
             "created_at",
             "created_by",
-            "created_by_id",
             "members",
             "member_ids",
+            "history",
         ]
+
+    def create(self, validated_data):
+        validated_data["created_by"] = self.context["request"].user
+        return super().create(validated_data)
+
+
+class ProjectHistorySerializer(serializers.ModelSerializer):
+    history_user = serializers.StringRelatedField(read_only=True)
+    history_date = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Project.history.model
+        fields = "__all__"
+
+    def get_changed_by(self, obj):
+        return obj.history_user.username if obj.history_user else None
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -78,8 +97,6 @@ class TaskSerializer(serializers.ModelSerializer):
             "planned_end",
             "actual_start",
             "actual_end",
-            "planned_time",
-            "actual_time",
             "status",
             "created_at",
             "created_by",
