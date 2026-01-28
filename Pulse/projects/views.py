@@ -3,7 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 
 from .models import Task, Project
-from .serializers import TaskSerializer, ProjectSerializer, ProjectHistorySerializer
+from .serializers import TaskSerializer, TaskHistorySerializer, ProjectSerializer, ProjectHistorySerializer
 
 
 @extend_schema(tags=['Project'])
@@ -90,3 +90,13 @@ class TaskViewSet(viewsets.ModelViewSet):
         "planned_time",
         "actual_time",
     ]
+
+
+@extend_schema(tags=['Task History'])
+class TaskHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = TaskHistorySerializer
+
+    def get_queryset(self):
+        return Task.history.filter(id=self.kwargs["task_pk"]).order_by(
+            "-history_date"
+        )

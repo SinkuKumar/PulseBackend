@@ -7,7 +7,7 @@ from rest_framework.permissions import AllowAny
 
 from drf_spectacular.utils import extend_schema
 
-from .views import ProjectViewSet, ProjectHistoryViewSet, TaskViewSet
+from .views import ProjectViewSet, ProjectHistoryViewSet, TaskViewSet, TaskHistoryViewSet
 
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet)
@@ -16,6 +16,11 @@ router.register(
     r"projects/(?P<project_pk>\d+)/history",
     ProjectHistoryViewSet,
     basename="project-history",
+)
+router.register(
+    r"tasks/(?P<task_pk>\d+)/history",
+    TaskHistoryViewSet,
+    basename="task-history",
 )
 
 @extend_schema(
