@@ -57,6 +57,7 @@ class PulseView(APIView):
 urlpatterns = [
     path("", PulseView.as_view(), name="api-root"),
     path("admin/", admin.site.urls),
+    path('api/v1/auth/', include('authentication.urls')),
     path("api/v1/users/", include(("users.urls"))),
     path("api/v1/organization/", include(("organization.urls"))),
     path("api/v1/projects/", include(("projects.urls"))),
