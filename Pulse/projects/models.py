@@ -66,10 +66,20 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.project.name})"
-    
 
-# class Comment(models.Model):
-#     comment = models.TextField()
-#     task = models.ManyToManyField(Task)
-#     employee = models.ForeignKey(Employee, related_name="employee_comment", blank=True, on_delete=models.PROTECT)
-#     commented_at = models.DateTimeField(auto_now_add=True)
+
+class Comment(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.PROTECT,
+        related_name="comments",
+        null=True,
+    )
+    created_by = models.ForeignKey(
+        Employee, on_delete=models.PROTECT, related_name="employee_comment"
+    )
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment on {self.task}"

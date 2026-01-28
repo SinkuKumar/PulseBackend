@@ -7,11 +7,17 @@ from rest_framework.permissions import AllowAny
 
 from drf_spectacular.utils import extend_schema
 
-from .views import ProjectViewSet, ProjectHistoryViewSet, TaskViewSet, TaskHistoryViewSet
+from .views import (
+    ProjectViewSet,
+    ProjectHistoryViewSet,
+    TaskViewSet,
+    TaskHistoryViewSet,
+    TaskCommentViewSet,
+)
 
 router = DefaultRouter()
-router.register(r'projects', ProjectViewSet)
-router.register(r'tasks', TaskViewSet)
+router.register(r"projects", ProjectViewSet)
+router.register(r"tasks", TaskViewSet)
 router.register(
     r"projects/(?P<project_pk>\d+)/history",
     ProjectHistoryViewSet,
@@ -22,6 +28,12 @@ router.register(
     TaskHistoryViewSet,
     basename="task-history",
 )
+router.register(
+    r"tasks/(?P<task_pk>\d+)/comments",
+    TaskCommentViewSet,
+    basename="task-comments",
+)
+
 
 @extend_schema(
     tags=["API Discovery"],
@@ -33,16 +45,19 @@ class ProjectView(APIView):
     """
     Project API root
     """
+
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
-        return Response({
-            "projects": request.build_absolute_uri(reverse("project-list")),
-            "tasks": request.build_absolute_uri(reverse("task-list")),
-        })
+        return Response(
+            {
+                "projects": request.build_absolute_uri(reverse("project-list")),
+                "tasks": request.build_absolute_uri(reverse("task-list")),
+            }
+        )
 
 
 urlpatterns = [
-    path('', ProjectView.as_view(), name="projects-root"),
-    path('', include(router.urls))
+    path("", ProjectView.as_view(), name="projects-root"),
+    path("", include(router.urls)),
 ]

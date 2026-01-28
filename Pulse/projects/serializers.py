@@ -1,6 +1,27 @@
 from rest_framework import serializers
-from .models import Project, Task
+from .models import Project, Task, Comment
 from organization.models import Employee
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    task = serializers.HyperlinkedRelatedField(
+        view_name="task-detail",
+        read_only=True,
+    )
+    created_by = serializers.HyperlinkedRelatedField(
+        view_name="employee-detail",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Comment
+        fields = [
+            "id",
+            "task",
+            "created_by",
+            "comment",
+            "created_at",
+        ]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -65,6 +86,11 @@ class TaskSerializer(serializers.ModelSerializer):
         lookup_field="pk",
         lookup_url_kwarg="task_pk",
     )
+    task_comments = serializers.HyperlinkedIdentityField(
+        view_name="task-comments-list",
+        lookup_field="pk",
+        lookup_url_kwarg="task_pk",
+    )
     project = serializers.HyperlinkedRelatedField(
         view_name="project-detail", read_only=True
     )
@@ -111,6 +137,7 @@ class TaskSerializer(serializers.ModelSerializer):
             "assigned_by_id",
             "assigned_to",
             "assigned_to_ids",
+            "task_comments",
             "history",
         ]
 

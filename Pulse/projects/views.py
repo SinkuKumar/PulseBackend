@@ -1,12 +1,20 @@
 from rest_framework import filters, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.exceptions import ValidationError
 from drf_spectacular.utils import extend_schema
 
-from .models import Task, Project
-from .serializers import TaskSerializer, TaskHistorySerializer, ProjectSerializer, ProjectHistorySerializer
+from organization.models import Employee
+from .models import Project, Task, Comment
+from .serializers import (
+    TaskSerializer,
+    TaskHistorySerializer,
+    ProjectSerializer,
+    ProjectHistorySerializer,
+    CommentSerializer,
+)
 
 
-@extend_schema(tags=['Project'])
+@extend_schema(tags=["Project"])
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -41,7 +49,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     ]
 
 
-@extend_schema(tags=['Project History'])
+@extend_schema(tags=["Project History"])
 class ProjectHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ProjectHistorySerializer
 
@@ -51,7 +59,7 @@ class ProjectHistoryViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
 
-@extend_schema(tags=['Task'])
+@extend_schema(tags=["Task"])
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -92,11 +100,26 @@ class TaskViewSet(viewsets.ModelViewSet):
     ]
 
 
-@extend_schema(tags=['Task History'])
+@extend_schema(tags=["Task History"])
 class TaskHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TaskHistorySerializer
 
     def get_queryset(self):
-        return Task.history.filter(id=self.kwargs["task_pk"]).order_by(
-            "-history_date"
+        return Task.history.filter(id=self.kwargs["task_pk"]).order_by("-history_date")
+
+
+@extend_schema(tags=["Task Comment"])
+class TaskCommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        return Comment.objects.filter(task_id=self.kwargs["task_pk"])
+
+    def perform_create(self, serializer):
+        if not hasattr(self.request.user, "employee"):
+            raise ValidationError("Only employees can comment")
+
+        serializer.save(
+            task_id=self.kwargs["task_pk"],
+            created_by=self.request.user.employee,
         )
